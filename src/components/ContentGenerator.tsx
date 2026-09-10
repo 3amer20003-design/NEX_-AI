@@ -41,7 +41,7 @@ export function ContentGenerator() {
 
     try {
       const token = await user.getIdToken();
-      const payload: GenerationRequest = { topic, type, tone, language };
+      const payload: GenerationRequest = { topic, type, tone };
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 
@@ -51,13 +51,14 @@ export function ContentGenerator() {
         body: JSON.stringify(payload),
       });
 
+      // The Express server always returns { result: "string", error?: "string" }
       const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || t('gen_failed'));
       }
 
-      setResult(data.content || data.result || '');
+      setResult(data.result || '');
     } catch (err: any) {
       setError(err.message);
     } finally {
