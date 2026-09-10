@@ -19,7 +19,7 @@ export default async function handler(
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
   );
 
   if (req.method === 'OPTIONS') {
@@ -33,7 +33,17 @@ export default async function handler(
   }
 
   try {
-    const { topic, type, tone, language = 'ar' } = req.body as GenerateRequest;
+    // Attempt to parse body safely if it's stringified
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        // Ignore parse error, it might already be an object
+      }
+    }
+
+    const { topic, type, tone, language = 'ar' } = body as GenerateRequest;
 
     if (!topic || !type || !tone) {
       res.status(400).json({ error: 'Missing required fields' });
@@ -80,7 +90,7 @@ export default async function handler(
     console.error('Generation error:', error);
     res.status(500).json({ 
       error: 'Failed to generate content', 
-      details: error.message 
+      details: error.message || error.toString()
     });
   }
 }
