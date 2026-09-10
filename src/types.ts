@@ -5,6 +5,7 @@ export interface GenerationRequest {
   topic: string;
   type: ContentType;
   tone: ToneType;
+  language?: string;
 }
 
 export interface GenerationResponse {
